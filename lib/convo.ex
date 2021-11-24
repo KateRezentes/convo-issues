@@ -14,16 +14,16 @@ defmodule Convo do
   """
   def hello do
     {:ok, text_result} = File.read("issues.txt")
-    {:ok, entries} = Jason.decode(text_result)
-    result = []
+    {:ok, jason_result} = Jason.decode(text_result)
 
-    y = %{}
+    logins =
+      Enum.reduce(jason_result, %{}, fn entry, acc ->
+        x = String.to_atom(entry["user"]["login"])
+        acc = Map.put_new(acc, x, 0)
+        {_, updated_acc} = Map.get_and_update(acc, x, fn v -> {acc, v + 1} end)
+        updated_acc
+      end)
 
-    Enum.reduce(entries, y, fn entry, y ->
-      x = entry["user"]["login"]
-
-      Map.put_new(y, x, 0)
-      Map.get_and_update(y, x, fn val -> val + 1 end)
-    end)
+    IO.inspect(logins)
   end
 end
